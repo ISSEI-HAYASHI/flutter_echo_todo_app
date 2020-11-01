@@ -7,10 +7,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:todo_app/models/user.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/repositories/constants.dart';
+//todo作る用
 // import 'package:todo_app/models/todo.dart';
 // import 'package:todo_app/repositories/todo.dart';
 
-// import '../models/todo.dart';
+//project作る用
+// import 'package:todo_app/models/project.dart';
+// import 'package:todo_app/repositories/project.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -124,6 +127,13 @@ class _LoginFormState extends State<LoginForm> {
       kAuthorizationToken = 'Bearer ' + token;
       kUserName = userNmae;
       kUserID = userID;
+      // for (int i = 1; i <= 3; i++) {
+      //   print(i);
+      //   Project prj = Project(name: "プロジェクト$i");
+      //   await RESTProjectRepository().createProject(prj);
+      // }
+      // List<Project> prlList = await RESTProjectRepository().retrieveProjects();
+      // Project prj = prlList[0];
       // for (int i = 1; i <= 4; i++) {
       //   print(i);
       //   Todo testTodo;
@@ -136,6 +146,7 @@ class _LoginFormState extends State<LoginForm> {
       //     start: DateTime.now(),
       //     end: DateTime.now().add(new Duration(days: 5)),
       //     personID: userID,
+      //     projectID: prj.id,
       //   );
       //   await RESTTodoRepository().createTodo(testTodo);
       // }

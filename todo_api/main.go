@@ -39,8 +39,9 @@ func main() {
 	api.DELETE("/todos/:id", handlers.DeleteTodo)
 
 	//API for projects
-	api.GET("/projects/", handlers.GetProjects)
-	api.POST("/projects/", handlers.PostProject)
+	api.GET("/projects", handlers.GetProjects)
+	api.GET("/projects/:id", handlers.GetProject)
+	api.POST("/projects", handlers.PostProject)
 	api.DELETE("/projects/:id", handlers.DeleteProject)
 
 	e.Logger.Fatal(e.Start(":8000"))

@@ -8,6 +8,8 @@ import (
 	"time"
 	"todo_api/models"
 
+	"github.com/google/uuid"
+
 	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
@@ -54,6 +56,17 @@ func PostTodo(c echo.Context) error {
 	err := c.Bind(&todo)
 	if err != nil {
 		return err
+	}
+	if id := todo.ProjectID; id != uuid.Nil {
+		var prj models.Project
+		err := prj.Get(id)
+		if err == gorm.ErrRecordNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return internalServerError(err)
+		}
+		todo.Project = prj
 	}
 
 	err = todo.Create()

@@ -28,7 +28,7 @@ class _TodoCreationScreenState extends State<TodoCreationScreen> {
         padding: EdgeInsets.all(30),
         child: Form(
           key: _key,
-          autovalidate: true,
+          // autovalidate: true,
           child: Column(
             children: [
               TodoEditForm(
@@ -52,15 +52,10 @@ class _TodoCreationScreenState extends State<TodoCreationScreen> {
 
   Future<void> _createTodoAndReturnToHome() async {
     if (_fileList[0] != null) {
-      print("file isn't null");
       String imageurl = await ImageToAPI().upload(_fileList[0]);
-      print(imageurl);
       _todo.imageUrl = imageurl;
     }
-    print("A");
-    print(_todo.imageUrl);
     await RESTTodoRepository().createTodo(_todo);
-    print("B");
     Navigator.pushNamedAndRemoveUntil(
       context,
       kTodoHomeRouteName,

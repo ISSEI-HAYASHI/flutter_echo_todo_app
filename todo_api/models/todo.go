@@ -17,8 +17,8 @@ type Todo struct {
 	End      string    `json:"end"`
 	PersonID uuid.UUID `json:"person"`
 	// Person   User
-	ProjectID int     `json:"projectid"`
-	Project   Project `json:"project" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ProjectID uuid.UUID `json:"projectid"`
+	Project   Project   `json:"project" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // BeforeCreate make default `todo id`

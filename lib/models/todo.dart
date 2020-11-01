@@ -5,22 +5,22 @@ class Todo {
   String title;
   String memo;
   String imageUrl;
-  String genre;
   bool done;
   DateTime start;
   DateTime end;
   String personID;
+  String projectID;
 
   Todo({
     this.id,
     this.title,
     this.memo,
     this.imageUrl,
-    this.genre,
     this.done = false,
     this.start,
     this.end,
     this.personID,
+    this.projectID,
   });
 
   Todo.fromMap(Map<String, dynamic> map)
@@ -29,11 +29,11 @@ class Todo {
             title: map["title"],
             memo: map["memo"],
             imageUrl: map["imageurl"],
-            genre: map["genre"],
             done: map["done"],
             start: DateTime.parse(map["start"]),
             end: DateTime.parse(map["end"]),
-            personID: map["person"]);
+            personID: map["person"],
+            projectID: map["projectid"]);
 
   Map<String, dynamic> toMap() {
     return {
@@ -41,11 +41,11 @@ class Todo {
       "title": this.title,
       "memo": this.memo,
       "imageurl": this.imageUrl,
-      "genre": this.genre,
       "done": this.done,
       "start": this.start.toIso8601String(),
       "end": this.end.toIso8601String(),
       "person": this.personID,
+      "projectid": this.projectID,
     };
   }
 }

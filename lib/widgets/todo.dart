@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app/models/project.dart';
 import 'package:todo_app/models/todo.dart';
+import 'package:todo_app/repositories/project.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/utils/datetime.dart';
 // import 'package:todo_app/widgets/image_field.dart';
@@ -8,6 +10,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:todo_app/repositories/image.dart';
+import 'package:dropdown_formfield/dropdown_formfield.dart';
 
 class TodoSummaryWidget extends StatelessWidget {
   final Todo todo;
@@ -93,16 +96,15 @@ class _TodoEditFormState extends State<TodoEditForm> {
 
   Todo _todo;
   List<File> _fileList;
+  String _prjValue;
   @override
   void initState() {
     super.initState();
     _todo = widget.todo;
     _fileList = widget.fileList;
-    // print(_todo.imageUrl);
     if (_todo.imageUrl != null) {
       _fileList[0] = File(_todo.imageUrl);
     }
-    // _file = widget.file;
   }
 
   @override
@@ -127,6 +129,34 @@ class _TodoEditFormState extends State<TodoEditForm> {
             initialValue: _todo.title,
           ),
         ),
+        const _FormLabelWidget("Project"),
+        Padding(
+            padding: _formFieldPadding,
+            child: FutureBuilder<List<Map<String, String>>>(
+              future: _generateProjectDataSource(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Text("プロジェクトを取得中");
+                } else {
+                  return DropDownFormField(
+                    filled: false,
+                    titleText: "",
+                    hintText: "Choose a project.",
+                    value: _prjValue,
+                    onChanged: (value) {
+                      setState(() {
+                        _prjValue = value;
+                        _todo.projectID = value;
+                        print(_todo.projectID);
+                      });
+                    },
+                    dataSource: snapshot.data,
+                    textField: "display",
+                    valueField: "value",
+                  );
+                }
+              },
+            )),
         const _FormLabelWidget('Schedule'),
         Padding(
           padding: _formFieldPadding,
@@ -445,6 +475,16 @@ class _TodoEditFormState extends State<TodoEditForm> {
     return _generateDropdownMenu(days, offset: 1);
   }
 
+  Future<List<Map<String, String>>> _generateProjectDataSource() async {
+    List<Project> prjList = await RESTProjectRepository().retrieveProjects();
+    return prjList.map((e) {
+      return {
+        "display": e.name,
+        "value": e.id,
+      };
+    }).toList();
+  }
+
   Future<int> showCupertinoBottomBar() {
     //選択するためのボトムシートを表示
     return showCupertinoModalPopup<int>(
@@ -497,23 +537,6 @@ class _TodoEditFormState extends State<TodoEditForm> {
       });
     }
   }
-
-  // Future<void> _getImage() async {
-  //   final picked = await _picker.getImage(
-  //     source: ImageSource.gallery,
-  //   );
-
-  //   if (picked != null) {
-  //     setState(() {
-  //       // _image = File(picked.path);
-  //       if (_todo.imageUrl.isNotEmpty) {
-  //         debugPrint('deleting image to be here');
-  //         // _todo.imageFile.deleteSync();
-  //       }
-  //       _todo.imageUrl = picked.path;
-  //     });
-  //   }
-  // }
 }
 
 class _FormLabelWidget extends StatelessWidget {

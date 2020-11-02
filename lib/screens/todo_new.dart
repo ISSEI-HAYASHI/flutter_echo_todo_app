@@ -14,11 +14,11 @@ class TodoCreationScreen extends StatefulWidget {
 
 class _TodoCreationScreenState extends State<TodoCreationScreen> {
   final _key = GlobalKey<FormState>();
-  final _todo = Todo(title: '', memo: '', start: DateTime.now());
+  final _todo = Todo(title: '', memo: '', start: DateTime.now(), imageUrl: "");
   final List<File> _fileList = [
     File(""),
   ];
-  String _tempUrl = "";
+  final String _tempUrl = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(

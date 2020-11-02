@@ -16,8 +16,9 @@ class _TodoCreationScreenState extends State<TodoCreationScreen> {
   final _key = GlobalKey<FormState>();
   final _todo = Todo(title: '', memo: '', start: DateTime.now());
   final List<File> _fileList = [
-    File(''),
+    File(""),
   ];
+  String _tempUrl = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +35,7 @@ class _TodoCreationScreenState extends State<TodoCreationScreen> {
               TodoEditForm(
                 todo: _todo,
                 fileList: _fileList,
+                tempUrl: _tempUrl,
               ),
               RaisedButton(
                 child: const Text('Add'),
@@ -51,7 +53,7 @@ class _TodoCreationScreenState extends State<TodoCreationScreen> {
   }
 
   Future<void> _createTodoAndReturnToHome() async {
-    if (_fileList[0] != null) {
+    if (_fileList[0].path != "") {
       String imageurl = await ImageToAPI().upload(_fileList[0]);
       _todo.imageUrl = imageurl;
     }

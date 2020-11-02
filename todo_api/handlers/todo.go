@@ -104,6 +104,16 @@ func SaveImage(c echo.Context) error {
 	return c.String(http.StatusOK, file.Filename)
 }
 
+//DeleteImage is a handler for `DELETE /api/images/:filename`
+func DeleteImage(c echo.Context) error {
+	fileName := c.Param("filename")
+	err := os.Remove("images/" + fileName)
+	if err != nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
 // PutTodo is a handler for `PUT /api/todos/:id`.
 func PutTodo(c echo.Context) error {
 	id, err := getUUIDFromParam(c)

@@ -1,12 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/widgets/todo.dart';
 import 'package:todo_app/repositories/todo.dart';
+import 'package:todo_app/repositories/image.dart';
 
 class TodoEditScreen extends StatefulWidget {
   final Todo original;
@@ -20,6 +19,10 @@ class TodoEditScreen extends StatefulWidget {
 class _TodoEditScreenState extends State<TodoEditScreen> {
   final _key = GlobalKey<FormState>();
   Todo _todo;
+  final List<File> _fileList = [
+    File(""),
+  ];
+  final String _tempUrl = "";
 
   @override
   void initState() {
@@ -40,7 +43,11 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
           autovalidate: true,
           child: Column(
             children: [
-              TodoEditForm(todo: _todo),
+              TodoEditForm(
+                todo: _todo,
+                fileList: _fileList,
+                tempUrl: _tempUrl,
+              ),
               RaisedButton(
                 child: const Text('Save'),
                 onPressed: () {
@@ -57,16 +64,19 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
   }
 
   Future<void> _updateTodoAndPop() async {
-    final docDir = await getApplicationDocumentsDirectory();
-    final imgDir = Directory(p.join(docDir.path, 'images'));
-    if (!imgDir.existsSync()) {
-      imgDir.createSync();
+    print(_tempUrl);
+    if (_fileList[0].path != "") {
+      if (_todo.imageUrl.isNotEmpty) {
+        DeleteImage().delete(_todo.imageUrl);
+      }
+      _todo.imageUrl = await ImageToAPI().upload(_fileList[0]);
+    } else {
+      if (_todo.imageUrl.isNotEmpty && _tempUrl.isEmpty) {
+        DeleteImage().delete(_todo.imageUrl);
+        _todo.imageUrl = "";
+      }
     }
-    // if (_todo.imageUrl.isNotEmpty && !_todo.image.startsWith(imgDir.path)) {
-    //   final image = _todo.imageFile
-    //       .copySync(p.join(imgDir.path, p.basename(_todo.image)));
-    //   _todo.image = image.path;
-    // }
+
     await RESTTodoRepository().updateTodo(_todo);
     Navigator.pushNamedAndRemoveUntil(
       context,

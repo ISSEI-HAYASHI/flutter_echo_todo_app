@@ -5,7 +5,7 @@ const kMultipartMime = "multipart/form-data";
 
 const kSignupUrl = '$kHostUrl/signup';
 const kLoginUrl = '$kHostUrl/login';
-const kImageUploadUrl = '$kHostUrl/upload';
+const kImageUrl = '$kHostUrl/images';
 const kImageDownloadUrl = '$kHostUrl/download';
 const kAPIUrl = '$kHostUrl/api';
 const kTodoAPIUrl = '$kAPIUrl/todos';

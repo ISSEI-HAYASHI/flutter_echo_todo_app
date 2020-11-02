@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/models/project.dart';
 import 'package:todo_app/models/todo.dart';
+import 'package:todo_app/repositories/constants.dart';
 import 'package:todo_app/repositories/project.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/utils/datetime.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:todo_app/repositories/image.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
+// import 'package:http/http.dart' as http;
 
 class TodoSummaryWidget extends StatelessWidget {
   final Todo todo;
@@ -75,8 +77,13 @@ class TodoSummaryWidget extends StatelessWidget {
 class TodoEditForm extends StatefulWidget {
   final Todo todo;
   final List<File> fileList;
+  final String tempUrl;
 
-  TodoEditForm({Key key, @required this.todo, @required this.fileList})
+  TodoEditForm(
+      {Key key,
+      @required this.todo,
+      @required this.fileList,
+      @required this.tempUrl})
       : assert(todo != null),
         super(key: key);
 
@@ -97,14 +104,14 @@ class _TodoEditFormState extends State<TodoEditForm> {
   Todo _todo;
   List<File> _fileList;
   String _prjValue;
+  String _tempUrl;
   @override
   void initState() {
     super.initState();
     _todo = widget.todo;
     _fileList = widget.fileList;
-    if (_todo.imageUrl != null) {
-      _fileList[0] = File(_todo.imageUrl);
-    }
+    _tempUrl = widget.tempUrl;
+    _tempUrl = _todo.imageUrl;
   }
 
   @override
@@ -138,6 +145,9 @@ class _TodoEditFormState extends State<TodoEditForm> {
                 if (!snapshot.hasData) {
                   return const Text("プロジェクトを取得中");
                 } else {
+                  if (_todo.projectID != "") {
+                    _prjValue = _todo.projectID;
+                  }
                   return DropDownFormField(
                     filled: false,
                     titleText: "",
@@ -359,94 +369,37 @@ class _TodoEditFormState extends State<TodoEditForm> {
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (Image.file(_fileList[0]) != null)
-                      Container(
+                    Container(
                         height: 150,
                         width: 150,
-                        child: Image.file(_fileList[0]),
-                      ),
+                        child: _tempUrl.isNotEmpty && _fileList[0].path == ""
+                            ? Image.network(("$kHostUrl/" + _todo.imageUrl))
+                            : Image.file(_fileList[0])),
                     RaisedButton(
-                      onPressed: () {
-                        showBottomSheet();
-                      },
-                      child: Text('画像を変更'),
-                    ),
+                        onPressed: () {
+                          showBottomSheet();
+                        },
+                        child: _tempUrl.isNotEmpty || _fileList[0].path != ""
+                            ? Text('画像を変更')
+                            : Text("画像を追加")),
                   ]),
             )),
-            // StreamBuilder(
-            //     stream: onImageUploadedStream,
-            //     builder: (BuildContext context, AsyncSnapshot snapshot) {
-            //       if (snapshot.hasData) {
-            //         print("image field snapshot has data.");
-            //         print(_file);
-            //         // setState(() {
-            //         //   print("file set state");
-            //         //   _file = _file;
-            //         // });
-            //         return Container(
-            //             child: SingleChildScrollView(
-            //           child: Column(
-            //               mainAxisAlignment: MainAxisAlignment.center,
-            //               children: [
-            //                 if (_file != null)
-            //                   Container(
-            //                     height: 150,
-            //                     width: 150,
-            //                     child: Image.file(_file),
-            //                   ),
-            //                 RaisedButton(
-            //                   onPressed: () {
-            //                     showBottomSheet();
-            //                   },
-            //                   child: Text('画像を変更'),
-            //                 ),
-            //               ]),
-            //         ));
-            //       } else {
-            //         print("image field snapshot has no data.");
-            //         return Container(
-            //             child: SingleChildScrollView(
-            //           child: Column(
-            //               mainAxisAlignment: MainAxisAlignment.center,
-            //               children: [
-            //                 // if (_oldFile != null)
-            //                 //   Container(
-            //                 //     height: 300,
-            //                 //     width: 300,
-            //                 //     child: Image.file(_oldFile),
-            //                 //   ),
-            //                 RaisedButton(
-            //                   onPressed: () {
-            //                     showBottomSheet();
-            //                   },
-            //                   child: Text('写真を選択'),
-            //                 ),
-            //               ]),
-            //         ));
-            //       }
-            //     }),
-            RaisedButton(
-              child: const Text('削除'),
-              onPressed: () {
-                setState(() {
-                  if (_todo.imageUrl.isNotEmpty) {
-                    debugPrint('deleting image to be here');
-                    // _todo.imageFile.deleteSync();
-                  }
-                  _todo.imageUrl = '';
-                });
-              },
-            ),
+            if (_tempUrl.isNotEmpty || _fileList[0].path != "")
+              RaisedButton(
+                child: const Text('削除'),
+                onPressed: () {
+                  setState(() {
+                    if (_fileList[0].path != "") {
+                      _fileList[0] = File("");
+                    }
+                    if (_todo.imageUrl.isNotEmpty) {
+                      _tempUrl = "";
+                    }
+                  });
+                },
+              ),
           ],
         ),
-        Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: _todo.imageUrl == '' ? Text('No image') : Container()
-            // : Image.file(
-            //     _todo.imageFile,
-            //     width: 240,
-            //   ),
-            ),
       ],
     );
   }
@@ -529,13 +482,9 @@ class _TodoEditFormState extends State<TodoEditForm> {
     } else if (result == 1) {
       imageFile = await ImageUpload(ImageSource.gallery).getImageFromDevice();
     }
-    _fileList[0] = imageFile;
-    if (Image.file(_fileList[0]) != null) {
-      setState(() {
-        print("file set state");
-        _fileList[0] = imageFile;
-      });
-    }
+    setState(() {
+      _fileList[0] = imageFile;
+    });
   }
 }
 

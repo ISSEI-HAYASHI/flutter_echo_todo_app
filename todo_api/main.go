@@ -17,8 +17,8 @@ func main() {
 
 	e.POST("/signup", handlers.Signup)
 	e.POST("/login", handlers.Login)
-	e.POST("/upload", handlers.SaveImage)
-	// e.GET("/download/:filename", handlers.SendImage)
+	e.POST("/images", handlers.SaveImage)
+	e.DELETE("/images/:filename", handlers.DeleteImage)
 
 	api := e.Group("/api")
 	// To use API, authorization is required.

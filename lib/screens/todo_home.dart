@@ -3,9 +3,9 @@ import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/widgets/dismiss_background.dart';
 import 'package:todo_app/widgets/todo.dart';
-// import 'package:todo_app/widgets/image_field.dart';
 import 'package:todo_app/repositories/todo.dart';
 import 'package:todo_app/repositories/constants.dart';
+import 'package:todo_app/repositories/image.dart';
 
 class TodoHomeScreen extends StatefulWidget {
   @override
@@ -110,6 +110,19 @@ class TodoListState extends TodoListStateBase {
   @override
   void Function(DismissDirection) generateOnDismissedFunc(
       List<Todo> todos, Todo todo, int index) {
+    final String userID = kUserID;
+    if (userID != todo.personID) {
+      String message = "not your todo.";
+      setState(() {
+        key.currentState
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('“${todo.title}” was $message.'),
+            ),
+          );
+      });
+    }
     return (direction) {
       String message;
       switch (direction) {
@@ -126,11 +139,7 @@ class TodoListState extends TodoListStateBase {
           return;
       }
       setState(() {
-        print(DateTime.now());
-        // print(index);
-        // print(todos);
         todos.removeAt(index);
-        // print(todos);
         key.currentState
           ..hideCurrentSnackBar()
           ..showSnackBar(
@@ -155,8 +164,7 @@ class TodoListState extends TodoListStateBase {
             if (value != SnackBarClosedReason.action &&
                 message == 'deleted' &&
                 todo.imageUrl.isNotEmpty) {
-              debugPrint("deleting image tobe here.");
-              // todo.imageUrl.deleteSync();
+              DeleteImage().delete(todo.imageUrl);
             }
           });
       });
@@ -222,8 +230,7 @@ class TodoDoneListState extends TodoListStateBase {
             if (value != SnackBarClosedReason.action &&
                 message == 'deleted' &&
                 todo.imageUrl.isNotEmpty) {
-              // todo.imageFile.deleteSync();
-              debugPrint("deleting image tobe here.");
+              DeleteImage().delete(todo.imageUrl);
             }
           });
       });

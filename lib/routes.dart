@@ -5,3 +5,5 @@ const kTodoEditRouteName = '/edit';
 const kLoginRouteName = '/login';
 const kSignupRouteName = '/signup';
 const kAnonymousHomeRouteName = '/anonymous';
+const kProjectListRouteName = "/projects";
+const kProjectCreationRouteName = "/projects/new";

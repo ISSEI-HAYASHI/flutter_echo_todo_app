@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter/semantics.dart';
 import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/widgets/dismiss_background.dart';
@@ -17,6 +18,7 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
   static final _widgetOptions = <Widget>[
     TodoList(),
     TodoDoneList(),
+    SettingOptions(),
   ];
   int _currentIndex = 0;
 
@@ -28,16 +30,19 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
         title: const Text('Todo App'),
       ),
       body: _widgetOptions[_currentIndex],
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.pushNamed(context, kTodoCreationRouteName);
-        },
-      ),
+      floatingActionButton: _currentIndex != 2
+          ? FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.pushNamed(context, kTodoCreationRouteName);
+              },
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Todo'),
           BottomNavigationBarItem(icon: Icon(Icons.done), label: 'Done'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "setting"),
         ],
         currentIndex: _currentIndex,
         onTap: (value) {
@@ -235,5 +240,45 @@ class TodoDoneListState extends TodoListStateBase {
           });
       });
     };
+  }
+}
+
+class SettingOptions extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+              width: 200,
+              child: RaisedButton.icon(
+                icon: const Icon(
+                  Icons.notifications,
+                  color: Colors.white,
+                ),
+                label: const Text('notification'),
+                onPressed: () {},
+                color: Colors.grey,
+                textColor: Colors.white,
+              )),
+          SizedBox(
+            width: 200,
+            child: RaisedButton.icon(
+              icon: const Icon(
+                Icons.image,
+                color: Colors.white,
+              ),
+              label: const Text('project'),
+              onPressed: () {
+                Navigator.pushNamed(context, kProjectListRouteName);
+              },
+              color: Colors.grey,
+              textColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

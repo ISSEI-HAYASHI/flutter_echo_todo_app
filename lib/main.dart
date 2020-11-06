@@ -7,6 +7,8 @@ import 'package:todo_app/routes.dart';
 import 'package:todo_app/screens/login.dart';
 import 'package:todo_app/screens/signup.dart';
 import 'package:todo_app/screens/anonymous_home.dart';
+import 'package:todo_app/screens/project_list.dart';
+import 'package:todo_app/screens/project_new.dart';
 
 import 'routes.dart';
 
@@ -34,6 +36,8 @@ class MyApp extends StatelessWidget {
         kLoginRouteName: (context) => LoginScreen(),
         kSignupRouteName: (context) => SignupScreen(),
         kAnonymousHomeRouteName: (context) => AnonymousHomeScreen(),
+        kProjectListRouteName: (context) => ProjectListScreen(),
+        kProjectCreationRouteName: (context) => ProjectCreationScreen(),
       },
     );
   }

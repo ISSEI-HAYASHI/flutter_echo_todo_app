@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/models/project.dart';
 import 'package:todo_app/models/todo.dart';
+import 'package:todo_app/models/user.dart';
 import 'package:todo_app/repositories/constants.dart';
 import 'package:todo_app/repositories/project.dart';
+import 'package:todo_app/repositories/user.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/utils/datetime.dart';
-// import 'package:todo_app/widgets/image_field.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:todo_app/repositories/image.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
-// import 'package:http/http.dart' as http;
 
 class TodoSummaryWidget extends StatelessWidget {
   final Todo todo;
@@ -31,12 +31,31 @@ class TodoSummaryWidget extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              todo.title,
-              style: TextStyle(fontSize: 40),
-            ),
-          ),
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    todo.title,
+                    style: TextStyle(fontSize: 40),
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.account_box),
+                      FutureBuilder<User>(
+                        future:
+                            RESTUserRepository().retrieveUser(todo.personID),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Text("ユーザを取得中");
+                          }
+                          return Text("${snapshot.data.name}");
+                        },
+                      )
+                    ],
+                  )
+                ],
+              )),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

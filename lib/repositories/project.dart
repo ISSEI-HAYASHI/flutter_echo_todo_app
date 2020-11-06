@@ -8,7 +8,7 @@ abstract class ProjectRepository {
   Future<List<Project>> retrieveProjects();
   Future<Project> retrieveProject({String id});
   Future<void> createProject(Project prj);
-  Future<void> deleteTodo(Project prj);
+  Future<void> deleteProject(Project prj);
 }
 
 class RESTProjectRepository implements ProjectRepository {
@@ -51,7 +51,7 @@ class RESTProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<void> deleteTodo(Project prj) async {
+  Future<void> deleteProject(Project prj) async {
     final response = await http.delete('$kProjectAPIUrl/${prj.id}', headers: {
       'Authorization': kAuthorizationToken,
     });

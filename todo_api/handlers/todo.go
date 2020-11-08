@@ -45,9 +45,10 @@ func GetIDSlice(s string) []uuid.UUID {
 	var idSlice []uuid.UUID
 	for _, str := range sSlice {
 		u, err := uuid.Parse(str)
-		if err == nil {
-			idSlice = append(idSlice, u)
+		if err != nil {
+			break
 		}
+		idSlice = append(idSlice, u)
 	}
 	return idSlice
 }

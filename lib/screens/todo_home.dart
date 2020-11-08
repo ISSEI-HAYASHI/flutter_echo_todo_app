@@ -1,13 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 // import 'package:flutter/semantics.dart';
 import 'package:todo_app/models/todo.dart';
+import 'package:todo_app/models/project.dart';
+import 'package:todo_app/models/user.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/widgets/dismiss_background.dart';
 import 'package:todo_app/widgets/todo.dart';
 import 'package:todo_app/repositories/todo.dart';
+import 'package:todo_app/repositories/project.dart';
+import 'package:todo_app/repositories/user.dart';
 import 'package:todo_app/repositories/constants.dart';
 import 'package:todo_app/repositories/image.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:checkbox_formfield/checkbox_formfield.dart';
 
 class TodoHomeScreen extends StatefulWidget {
   @override
@@ -21,7 +28,7 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
     TodoDoneList(),
     SettingOptions(),
   ];
-  Future<List<Todo>> _todos;
+  // Future<List<Todo>> _todos;
   int _currentIndex = 0;
 
   @override
@@ -30,27 +37,27 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
       key: _key,
       appBar: AppBar(
         title: const Text('Todo App'),
-        actions: [
-          _currentIndex != 2
-              ? IconButton(
-                  icon: Icon(
-                    Icons.search,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    showMaterialModalBottomSheet(
-                      context: context,
-                      builder: (context, scrollController) => SizedBox(
-                        height: 400,
-                        child: TodoSearchWidget(
-                          todos: _todos,
-                          currentIndex: _currentIndex,
-                        ),
-                      ),
-                    );
-                  })
-              : Container()
-        ],
+        // actions: [
+        //   _currentIndex != 2
+        //       ? IconButton(
+        //           icon: Icon(
+        //             Icons.search,
+        //             color: Colors.white,
+        //           ),
+        //           onPressed: () {
+        //             showMaterialModalBottomSheet(
+        //               context: context,
+        //               builder: (context, scrollController) => SizedBox(
+        //                 height: 400,
+        //                 child: TodoSearchWidget(
+        //                   todos: _todos,
+        //                   currentIndex: _currentIndex,
+        //                 ),
+        //               ),
+        //             );
+        //           })
+        //       : Container()
+        // ],
       ),
       body: _widgetOptions[_currentIndex],
       floatingActionButton: _currentIndex != 2
@@ -83,44 +90,190 @@ abstract class TodoListBase extends StatefulWidget {}
 abstract class TodoListStateBase extends State<TodoListBase> {
   final DismissBackground leftSideBackground = null;
   GlobalKey<ScaffoldState> key;
-  @override
-  // void initState() {
-  //   _todos = widget.todos;
-  //   super.initState();
-  // }
+  int _currentIndex;
+  final _formKey = GlobalKey<FormState>();
+  final Future<List<User>> _users = RESTUserRepository().retrieveUsers();
+  final Future<List<Project>> _prjs =
+      RESTProjectRepository().retrieveProjects();
+  List<String> _searchedUserIDs = [];
+  List<String> _searchedProjectIDs = [];
+  Future<List<Todo>> _todos;
 
   @override
   Widget build(BuildContext context) {
     key = context.findAncestorWidgetOfExactType<Scaffold>().key;
-    final _todos = getTodos();
-    return FutureBuilder<List<Todo>>(
-      future: _todos,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Container(
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-        return ListView.builder(
-          itemCount: snapshot.data.length,
-          itemBuilder: (context, index) {
-            final todo = snapshot.data[index];
-            return Dismissible(
-              key: Key('${todo.id}'),
-              background: leftSideBackground,
-              secondaryBackground: const DismissDeletionBackground(),
-              child: TodoSummaryWidget(todo: todo),
-              onDismissed: generateOnDismissedFunc(snapshot.data, todo, index),
-            );
-          },
-        );
-      },
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(
+              height: 50,
+              child: IconButton(
+                  icon: Icon(
+                    Icons.search,
+                    color: Colors.blue,
+                  ),
+                  onPressed: () {
+                    showMaterialModalBottomSheet(
+                      context: context,
+                      builder: (context, scrollController) => SizedBox(
+                        height: 400,
+                        child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 50,
+                                  child: RaisedButton(
+                                    color: Colors.blue,
+                                    textColor: Colors.white,
+                                    child: const Text("検索"),
+                                    onPressed: () {
+                                      if (_formKey.currentState.validate()) {
+                                        _formKey.currentState.save();
+                                        Navigator.pop(context);
+                                        setState(() {
+                                          _todos = RESTTodoRepository()
+                                              .retrieveTodos(
+                                                  users: _searchedUserIDs,
+                                                  prjs: _searchedProjectIDs,
+                                                  done: _currentIndex == 0
+                                                      ? false
+                                                      : true);
+                                          _searchedUserIDs = [];
+                                          _searchedProjectIDs = [];
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ),
+                                Form(
+                                    key: _formKey,
+                                    child: SizedBox(
+                                        height: 300,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            SizedBox(
+                                              width: 150,
+                                              child: FutureBuilder(
+                                                  future: _users,
+                                                  builder: (context, snapshot) {
+                                                    if (!snapshot.hasData) {
+                                                      return Container(
+                                                        child: Center(
+                                                          child:
+                                                              CircularProgressIndicator(),
+                                                        ),
+                                                      );
+                                                    }
+                                                    return ListView.builder(
+                                                      itemCount:
+                                                          snapshot.data.length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        final user = snapshot
+                                                            .data[index];
+                                                        return CheckboxListTileFormField(
+                                                          dense: true,
+                                                          title: Text(
+                                                              "${user.name}"),
+                                                          initialValue: false,
+                                                          onSaved: (value) {
+                                                            if (value) {
+                                                              print(
+                                                                  "user checked field");
+                                                              _searchedUserIDs
+                                                                  .add(user.id);
+                                                            }
+                                                          },
+                                                        );
+                                                      },
+                                                    );
+                                                  }),
+                                            ),
+                                            SizedBox(
+                                                width: 200,
+                                                child: FutureBuilder(
+                                                    future: _prjs,
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      if (!snapshot.hasData) {
+                                                        return Container(
+                                                          child: Center(
+                                                            child:
+                                                                CircularProgressIndicator(),
+                                                          ),
+                                                        );
+                                                      }
+                                                      return ListView.builder(
+                                                        itemCount: snapshot
+                                                            .data.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          final prj = snapshot
+                                                              .data[index];
+                                                          return CheckboxListTileFormField(
+                                                            title: Text(
+                                                                "${prj.name}"),
+                                                            dense: true,
+                                                            initialValue: false,
+                                                            onSaved: (value) {
+                                                              if (value) {
+                                                                _searchedProjectIDs
+                                                                    .add(
+                                                                        prj.id);
+                                                              }
+                                                            },
+                                                          );
+                                                        },
+                                                      );
+                                                    })),
+                                          ],
+                                        ))),
+                              ],
+                            )),
+                      ),
+                    );
+                  }),
+            )
+          ],
+        ),
+        Flexible(
+          child: FutureBuilder<List<Todo>>(
+            future: _todos,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Container(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (context, index) {
+                  final todo = snapshot.data[index];
+                  return Dismissible(
+                    key: Key('${todo.id}'),
+                    background: leftSideBackground,
+                    secondaryBackground: const DismissDeletionBackground(),
+                    child: TodoSummaryWidget(todo: todo),
+                    onDismissed:
+                        generateOnDismissedFunc(snapshot.data, todo, index),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  Future<List<Todo>> getTodos();
+  // Future<List<Todo>> getTodos();
 
   void Function(DismissDirection) generateOnDismissedFunc(
       List<Todo> todos, Todo todo, int index);
@@ -137,12 +290,18 @@ class TodoList extends TodoListBase {
 class TodoListState extends TodoListStateBase {
   @override
   final leftSideBackground = const DismissDoneBackground();
-
-  @override
-  Future<List<Todo>> getTodos() {
-    return RESTTodoRepository()
-        .retrieveTodos(users: [kUserID], prjs: [], done: false);
-  }
+  final int _currentIndex = 0;
+  Future<List<Todo>> _todos = RESTTodoRepository()
+      .retrieveTodos(users: [kUserID], prjs: [], done: false);
+  // @override
+  // Future<List<Todo>> getTodos() {
+  //   return RESTTodoRepository()
+  //       .retrieveTodos(users: [kUserID], prjs: [], done: false);
+  // }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
 
   @override
   void Function(DismissDirection) generateOnDismissedFunc(
@@ -219,12 +378,13 @@ class TodoDoneList extends TodoListBase {
 class TodoDoneListState extends TodoListStateBase {
   @override
   final leftSideBackground = const DismissUndoBackground();
-
-  @override
-  Future<List<Todo>> getTodos() {
-    return RESTTodoRepository()
-        .retrieveTodos(users: [kUserID], prjs: [], done: true);
-  }
+  final int _currentIndex = 1;
+  Future<List<Todo>> _todos = RESTTodoRepository()
+      .retrieveTodos(users: [kUserID], prjs: [], done: true);
+  // @override
+  // Future<List<Todo>> getTodos() {
+  //   return
+  // }
 
   @override
   void Function(DismissDirection) generateOnDismissedFunc(

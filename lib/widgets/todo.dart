@@ -4,6 +4,7 @@ import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/models/user.dart';
 import 'package:todo_app/repositories/constants.dart';
 import 'package:todo_app/repositories/project.dart';
+import 'package:todo_app/repositories/todo.dart';
 import 'package:todo_app/repositories/user.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/utils/datetime.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:todo_app/repositories/image.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
+import 'package:checkbox_formfield/checkbox_formfield.dart';
 
 class TodoSummaryWidget extends StatelessWidget {
   final Todo todo;
@@ -543,5 +545,155 @@ class _FormSeperatorWidget extends StatelessWidget {
       padding: _formFieldSeperatorPadding,
       child: Text(data),
     );
+  }
+}
+
+class TodoSearchWidget extends StatefulWidget {
+  final Future<List<Todo>> todos;
+  final int currentIndex;
+  TodoSearchWidget({
+    Key key,
+    @required this.todos,
+    @required this.currentIndex,
+  })  : assert(todos != null),
+        assert(currentIndex != null),
+        super(key: key);
+
+  State<TodoSearchWidget> createState() => _TodoSearchWidgetState();
+}
+
+class _TodoSearchWidgetState extends State<TodoSearchWidget> {
+  final _formKey = GlobalKey<FormState>();
+  final Future<List<User>> _users = RESTUserRepository().retrieveUsers();
+  final Future<List<Project>> _prjs =
+      RESTProjectRepository().retrieveProjects();
+  List<String> _searchedUserIDs = [];
+  List<String> _searchedProjectIDs = [];
+  // Future<List<Todo>> _todos;
+  int _currentIndex;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _todos = widget.todos;
+  //   _currentIndex = widget.currentIndex;
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 50,
+              child: RaisedButton(
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Text("検索"),
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+                    _formKey.currentState.save();
+                    print(_searchedUserIDs);
+                    print(_searchedProjectIDs);
+                    Future<List<Todo>> searchedTodos = RESTTodoRepository()
+                        .retrieveTodos(
+                            users: _searchedUserIDs,
+                            prjs: _searchedProjectIDs,
+                            done: _currentIndex == 0 ? false : true);
+                    setState(() {
+                      // _todos = searchedTodos;
+                      _searchedUserIDs = [];
+                      _searchedProjectIDs = [];
+                    });
+                  }
+                },
+              ),
+            ),
+            Form(
+                key: _formKey,
+                child: SizedBox(
+                    height: 300,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: FutureBuilder(
+                              future: _users,
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container(
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                return ListView.builder(
+                                  itemCount: snapshot.data.length,
+                                  itemBuilder: (context, index) {
+                                    final user = snapshot.data[index];
+                                    return CheckboxListTileFormField(
+                                      dense: true,
+                                      title: Text("${user.name}"),
+                                      initialValue: false,
+                                      onSaved: (value) {
+                                        if (value) {
+                                          print("user checked field");
+                                          _searchedUserIDs.add(user.id);
+                                        }
+                                      },
+                                      // validator: (bool value) {
+                                      //   if (value) {
+                                      //     return null;
+                                      //   } else {
+                                      //     return 'False!';
+                                      //   }
+                                      // },
+                                    );
+                                  },
+                                );
+                              }),
+                        ),
+                        SizedBox(
+                            width: 200,
+                            child: FutureBuilder(
+                                future: _prjs,
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return Container(
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  }
+                                  return ListView.builder(
+                                    itemCount: snapshot.data.length,
+                                    itemBuilder: (context, index) {
+                                      final prj = snapshot.data[index];
+                                      return CheckboxListTileFormField(
+                                        title: Text("${prj.name}"),
+                                        dense: true,
+                                        initialValue: false,
+                                        onSaved: (value) {
+                                          if (value) {
+                                            _searchedProjectIDs.add(prj.id);
+                                          }
+                                        },
+                                        // validator: (bool value) {
+                                        //   if (value) {
+                                        //     return null;
+                                        //   } else {
+                                        //     return 'False!';
+                                        //   }
+                                        // },
+                                      );
+                                    },
+                                  );
+                                })),
+                      ],
+                    ))),
+          ],
+        ));
   }
 }

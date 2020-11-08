@@ -20,6 +20,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
+                // int _currentIndex = 2;
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   kTodoHomeRouteName,

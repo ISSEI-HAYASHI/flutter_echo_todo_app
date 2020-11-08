@@ -10,11 +10,10 @@ import (
 
 // GetUsers is a handler for `GET /api/users`.
 func GetUsers(c echo.Context) error {
-	var user models.User
-	user.ID.UnmarshalText([]byte(c.QueryParam("id")))
-	user.Name = c.QueryParam("name")
+	// var user models.User
+	// user.ID.UnmarshalText([]byte(c.Param("id")))
 
-	users, err := models.GetUsers(user)
+	users, err := models.GetUsers()
 	if err != nil {
 		return internalServerError(err)
 	}

@@ -25,14 +25,14 @@ func main() {
 	api.Use(middleware.JWT([]byte(handlers.SigningKey)))
 
 	// API for users
-	api.GET("/users/", handlers.GetUsers)
+	api.GET("/users", handlers.GetUsers)
 	api.GET("/users/:id", handlers.GetUser)
 	// api.POST("/users", handler.PostUser)
 	api.PUT("/users", handlers.PutUser)
 	api.DELETE("/users", handlers.DeleteUser)
 
 	// API for todos
-	api.GET("/todos/:id/:done", handlers.GetTodos)
+	api.GET("/todos/:users/:projects/:done", handlers.GetTodos)
 	api.GET("/todos/:id", handlers.GetTodo)
 	api.POST("/todos", handlers.PostTodo)
 	api.PUT("/todos/:id", handlers.PutTodo)

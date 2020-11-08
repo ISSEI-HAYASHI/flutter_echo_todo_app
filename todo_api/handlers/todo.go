@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 	"todo_api/models"
 
@@ -16,19 +17,39 @@ import (
 
 // GetTodos is a handler for `GET /api/todos`.
 func GetTodos(c echo.Context) error {
-	var todo models.Todo
-	todo.PersonID.UnmarshalText([]byte(c.Param("id")))
-	done := c.Param("done")
-
-	if done == "1" || done == "true" {
-		todo.Done = true
+	// var todo models.Todo
+	quids := c.Param("users")
+	qprjids := c.Param("projects")
+	qdone := c.Param("done")
+	uids := GetIDSlice(quids)
+	prjids := GetIDSlice(qprjids)
+	var done bool
+	if qdone == "1" || qdone == "true" {
+		done = true
+	} else {
+		done = false
 	}
-	todos, err := models.GetTodos(todo)
+	todos, err := models.GetTodos(uids, prjids, done)
 	if err != nil {
 		return internalServerError(err)
 	}
 
 	return c.JSON(http.StatusOK, todos)
+}
+
+//GetIDSlice returns slice of uuids for gettodos
+func GetIDSlice(s string) []uuid.UUID {
+	s = strings.Trim(s, "[")
+	s = strings.Trim(s, "]")
+	sSlice := strings.Split(s, ",")
+	var idSlice []uuid.UUID
+	for _, str := range sSlice {
+		u, err := uuid.Parse(str)
+		if err == nil {
+			idSlice = append(idSlice, u)
+		}
+	}
+	return idSlice
 }
 
 // GetTodo is a handler for `GET /api/todos/:id`.

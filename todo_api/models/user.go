@@ -59,8 +59,9 @@ func GetUserByName(name string) (User, error) {
 }
 
 // GetUsers returns users filtered by given user's values.
-func GetUsers(user User) ([]User, error) {
+func GetUsers() ([]User, error) {
 	var users []User
-	res := db.Where(&user).Find(&users)
+	res := db.Find(&users)
+	println(res)
 	return users, res.Error
 }

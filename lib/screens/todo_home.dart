@@ -7,6 +7,7 @@ import 'package:todo_app/widgets/todo.dart';
 import 'package:todo_app/repositories/todo.dart';
 import 'package:todo_app/repositories/constants.dart';
 import 'package:todo_app/repositories/image.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class TodoHomeScreen extends StatefulWidget {
   @override
@@ -20,6 +21,7 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
     TodoDoneList(),
     SettingOptions(),
   ];
+  Future<List<Todo>> _todos;
   int _currentIndex = 0;
 
   @override
@@ -28,6 +30,27 @@ class _TodoHomeScreenState extends State<TodoHomeScreen> {
       key: _key,
       appBar: AppBar(
         title: const Text('Todo App'),
+        actions: [
+          _currentIndex != 2
+              ? IconButton(
+                  icon: Icon(
+                    Icons.search,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    showMaterialModalBottomSheet(
+                      context: context,
+                      builder: (context, scrollController) => SizedBox(
+                        height: 400,
+                        child: TodoSearchWidget(
+                          todos: _todos,
+                          currentIndex: _currentIndex,
+                        ),
+                      ),
+                    );
+                  })
+              : Container()
+        ],
       ),
       body: _widgetOptions[_currentIndex],
       floatingActionButton: _currentIndex != 2
@@ -60,6 +83,11 @@ abstract class TodoListBase extends StatefulWidget {}
 abstract class TodoListStateBase extends State<TodoListBase> {
   final DismissBackground leftSideBackground = null;
   GlobalKey<ScaffoldState> key;
+  @override
+  // void initState() {
+  //   _todos = widget.todos;
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +127,9 @@ abstract class TodoListStateBase extends State<TodoListBase> {
 }
 
 class TodoList extends TodoListBase {
+  // final Future<List<Todo>> todos;
+  // TodoList({Key key, @required this.todos}) : assert(todos != null);
+
   @override
   State<StatefulWidget> createState() => TodoListState();
 }
@@ -109,7 +140,8 @@ class TodoListState extends TodoListStateBase {
 
   @override
   Future<List<Todo>> getTodos() {
-    return RESTTodoRepository().retrieveTodos(userID: kUserID, done: false);
+    return RESTTodoRepository()
+        .retrieveTodos(users: [kUserID], prjs: [], done: false);
   }
 
   @override
@@ -178,6 +210,8 @@ class TodoListState extends TodoListStateBase {
 }
 
 class TodoDoneList extends TodoListBase {
+  // final Future<List<Todo>> todos;
+  // TodoDoneList({Key key, @required this.todos}) : assert(todos != null);
   @override
   State<StatefulWidget> createState() => TodoDoneListState();
 }
@@ -188,7 +222,8 @@ class TodoDoneListState extends TodoListStateBase {
 
   @override
   Future<List<Todo>> getTodos() {
-    return RESTTodoRepository().retrieveTodos(userID: kUserID, done: true);
+    return RESTTodoRepository()
+        .retrieveTodos(users: [kUserID], prjs: [], done: true);
   }
 
   @override

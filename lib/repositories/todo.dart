@@ -7,7 +7,8 @@ import 'package:todo_app/repositories/constants.dart';
 // import '../screens/todo_new.dart';
 
 abstract class TodoRepository {
-  Future<List<Todo>> retrieveTodos({String userID, bool done});
+  Future<List<Todo>> retrieveTodos(
+      {List<String> users, List<String> prjs, bool done});
   Future<Todo> retrieveTodo(String id);
   Future<void> createTodo(Todo todo);
   Future<void> updateTodo(Todo todo);
@@ -16,8 +17,10 @@ abstract class TodoRepository {
 
 class RESTTodoRepository implements TodoRepository {
   @override
-  Future<List<Todo>> retrieveTodos({String userID, bool done}) async {
-    final response = await http.get('$kTodoAPIUrl/$userID/$done', headers: {
+  Future<List<Todo>> retrieveTodos(
+      {List<String> users, List<String> prjs, bool done}) async {
+    final response =
+        await http.get('$kTodoAPIUrl/$users/$prjs/$done', headers: {
       'Authorization': kAuthorizationToken,
     });
     if (response.statusCode != 200) {

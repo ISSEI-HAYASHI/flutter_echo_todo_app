@@ -19,6 +19,8 @@ type Todo struct {
 	// Person   User
 	ProjectID int     `json:"projectid"`
 	Project   Project `json:"project" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+    // 追加
+	Notification bool `json:"notificationToggle"`
 }
 
 // BeforeCreate make default `todo id`

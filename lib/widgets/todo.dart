@@ -8,6 +8,13 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:todo_app/repositories/image.dart';
+//追加
+import 'package:todo_app/repositories/todo.dart';
+import 'package:todo_app/store/store.dart';
+import 'package:todo_app/actions/actions.dart';
+import 'package:todo_app/notification/notificationHelper.dart';
+import 'package:todo_app/main.dart';
+//ここまで
 
 class TodoSummaryWidget extends StatelessWidget {
   final Todo todo;
@@ -49,6 +56,30 @@ class TodoSummaryWidget extends StatelessWidget {
                   // Text('@${todo.displayPlace()}'),
                 ],
               ),
+
+              // 追加
+              // 通知の切り替えボタン追加
+              if(todo.notificationToggle == true)
+                IconButton(
+                  iconSize: 30,
+                  onPressed: (){toggleBtn(todo, context);},
+                  icon: Icon(
+                    Icons.add_alert,
+                    color: Colors.blue,
+                  ),
+                ),
+              if(todo.notificationToggle != true)
+              // else
+                IconButton(
+                  iconSize: 30,
+                  onPressed: (){toggleBtn(todo, context);},
+                  icon: Icon(
+                    Icons.add_alert,
+                    color: Colors.grey,
+                  ),
+                ),
+              // ここまで
+
               RaisedButton(
                 child: const Text('view detail'),
                 onPressed: () {
@@ -67,6 +98,102 @@ class TodoSummaryWidget extends StatelessWidget {
       ),
     );
   }
+
+  // 追加
+  // 通知のtoggleを変更して更新
+  Future<void> toggleBtn(Todo todo, BuildContext context) async{
+    bool flag;
+    print(todo.notificationToggle);
+    if(todo.notificationToggle == false){
+      flag = true;
+      // 通知を設定する関数へ渡す
+      var notificationDatetime = todo.start;
+      print(todo.start);
+      _configureCustomReminder(flag, todo.id, todo.title, todo.memo, notificationDatetime);
+    }
+    else{
+      flag = false;
+    }
+    final renewTodo = Todo(
+      id: todo.id,
+      title: todo.title,
+      memo: todo.memo,
+      imageUrl: todo.imageUrl,
+      genre: todo.genre,
+      done: todo.done,
+      start: todo.start,
+      end: todo.end,
+      personID: todo.personID,
+      notificationToggle: flag,
+    );
+    await RESTTodoRepository().updateTodo(renewTodo);
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      kTodoHomeRouteName,
+          (route) => false,
+    );
+  }
+
+  //  時間指定の通知を設定
+  void _configureCustomReminder(
+      bool value,
+      String id,
+      String notificationTitle,
+      String notificationName,
+      DateTime notificationDatetime
+      ) {
+    if (value == true) {
+      var notificationTime = new DateTime(
+        notificationDatetime.year,
+        notificationDatetime.month,
+        notificationDatetime.day,
+        notificationDatetime.hour,
+        notificationDatetime.minute,
+      );
+
+      // 例えば毎朝7時に鳴らすとかだとこんな感じ
+      // var notificationTime = new DateTime(
+      //   notificationDatetime.year,
+      //   notificationDatetime.month,
+      //   notificationDatetime.day,
+      //   7,
+      //   0,
+      // );
+
+      // appStateReducerへ
+      getStore().dispatch(
+          SetReminderAction(
+            time: notificationTime.toIso8601String(),
+            name: notificationTitle,
+          )
+      );
+
+      // notificationHelperへ
+      scheduleNotification(
+        flutterLocalNotificationsPlugin,
+        // id,
+        // 本来であればここに予定のidが入り、ひとつの予定につき1回通知を鳴らすのだが、
+        // flutterLocalNotificationsPluginの都合でintのidしか入力できないため、
+        // 応急処置で1を入れている（1個しか通知を鳴らせない状態）
+        1,
+        notificationTitle,
+        notificationName,
+        notificationTime,
+      );
+    } else {
+      getStore().dispatch(RemoveReminderAction('custom'));
+      turnOffNotificationById(
+        flutterLocalNotificationsPlugin,
+        // id,
+        // 本来であればここに予定のidが入り、ひとつの予定につき1回通知を鳴らすのだが、
+        // flutterLocalNotificationsPluginの都合でintのidしか入力できないため、
+        // 応急処置で1を入れている（1個しか通知を鳴らせない状態）
+        1,
+      );
+    }
+  }
+  // ここまで
+
 }
 
 class TodoEditForm extends StatefulWidget {

@@ -59,6 +59,10 @@ class _TodoCreationScreenState extends State<TodoCreationScreen> {
     }
     print("A");
     print(_todo.imageUrl);
+    // 追加
+    // 予定作成時は通知を鳴らさない設定で作成
+    _todo.notificationToggle = false;
+    // ここまで
     await RESTTodoRepository().createTodo(_todo);
     print("B");
     Navigator.pushNamedAndRemoveUntil(

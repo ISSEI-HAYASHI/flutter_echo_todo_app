@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app/models/project.dart';
 import 'package:todo_app/models/todo.dart';
+import 'package:todo_app/models/user.dart';
+import 'package:todo_app/repositories/constants.dart';
+import 'package:todo_app/repositories/project.dart';
+// import 'package:todo_app/repositories/todo.dart';
+import 'package:todo_app/repositories/user.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/utils/datetime.dart';
-// import 'package:todo_app/widgets/image_field.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:todo_app/repositories/image.dart';
+import 'package:dropdown_formfield/dropdown_formfield.dart';
+// import 'package:checkbox_formfield/checkbox_formfield.dart';
 
 class TodoSummaryWidget extends StatelessWidget {
   final Todo todo;
@@ -26,12 +33,31 @@ class TodoSummaryWidget extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              todo.title,
-              style: TextStyle(fontSize: 40),
-            ),
-          ),
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    todo.title,
+                    style: TextStyle(fontSize: 40),
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.account_box),
+                      // FutureBuilder<User>(
+                      //   future:
+                      //       RESTUserRepository().retrieveUser(todo.personID),
+                      //   builder: (context, snapshot) {
+                      //     if (!snapshot.hasData) {
+                      //       return Text("ユーザを取得中");
+                      //     }
+                      //     return Text("${snapshot.data.name}");
+                      //   },
+                      // )
+                    ],
+                  )
+                ],
+              )),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -72,8 +98,13 @@ class TodoSummaryWidget extends StatelessWidget {
 class TodoEditForm extends StatefulWidget {
   final Todo todo;
   final List<File> fileList;
+  final String tempUrl;
 
-  TodoEditForm({Key key, @required this.todo, @required this.fileList})
+  TodoEditForm(
+      {Key key,
+      @required this.todo,
+      @required this.fileList,
+      @required this.tempUrl})
       : assert(todo != null),
         super(key: key);
 
@@ -93,16 +124,15 @@ class _TodoEditFormState extends State<TodoEditForm> {
 
   Todo _todo;
   List<File> _fileList;
+  String _prjValue;
+  String _tempUrl;
   @override
   void initState() {
     super.initState();
     _todo = widget.todo;
     _fileList = widget.fileList;
-    // print(_todo.imageUrl);
-    if (_todo.imageUrl != null) {
-      _fileList[0] = File(_todo.imageUrl);
-    }
-    // _file = widget.file;
+    _tempUrl = widget.tempUrl;
+    _tempUrl = _todo.imageUrl;
   }
 
   @override
@@ -127,6 +157,37 @@ class _TodoEditFormState extends State<TodoEditForm> {
             initialValue: _todo.title,
           ),
         ),
+        const _FormLabelWidget("Project"),
+        Padding(
+            padding: _formFieldPadding,
+            child: FutureBuilder<List<Map<String, String>>>(
+              future: _generateProjectDataSource(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Text("プロジェクトを取得中");
+                } else {
+                  if (_todo.projectID != "") {
+                    _prjValue = _todo.projectID;
+                  }
+                  return DropDownFormField(
+                    filled: false,
+                    titleText: "",
+                    hintText: "Choose a project.",
+                    value: _prjValue,
+                    onChanged: (value) {
+                      setState(() {
+                        _prjValue = value;
+                        _todo.projectID = value;
+                        print(_todo.projectID);
+                      });
+                    },
+                    dataSource: snapshot.data,
+                    textField: "display",
+                    valueField: "value",
+                  );
+                }
+              },
+            )),
         const _FormLabelWidget('Schedule'),
         Padding(
           padding: _formFieldPadding,
@@ -329,94 +390,37 @@ class _TodoEditFormState extends State<TodoEditForm> {
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (Image.file(_fileList[0]) != null)
-                      Container(
+                    Container(
                         height: 150,
                         width: 150,
-                        child: Image.file(_fileList[0]),
-                      ),
+                        child: _tempUrl.isNotEmpty && _fileList[0].path == ""
+                            ? Image.network(("$kHostUrl/" + _todo.imageUrl))
+                            : Image.file(_fileList[0])),
                     RaisedButton(
-                      onPressed: () {
-                        showBottomSheet();
-                      },
-                      child: Text('画像を変更'),
-                    ),
+                        onPressed: () {
+                          showBottomSheet();
+                        },
+                        child: _tempUrl.isNotEmpty || _fileList[0].path != ""
+                            ? Text('画像を変更')
+                            : Text("画像を追加")),
                   ]),
             )),
-            // StreamBuilder(
-            //     stream: onImageUploadedStream,
-            //     builder: (BuildContext context, AsyncSnapshot snapshot) {
-            //       if (snapshot.hasData) {
-            //         print("image field snapshot has data.");
-            //         print(_file);
-            //         // setState(() {
-            //         //   print("file set state");
-            //         //   _file = _file;
-            //         // });
-            //         return Container(
-            //             child: SingleChildScrollView(
-            //           child: Column(
-            //               mainAxisAlignment: MainAxisAlignment.center,
-            //               children: [
-            //                 if (_file != null)
-            //                   Container(
-            //                     height: 150,
-            //                     width: 150,
-            //                     child: Image.file(_file),
-            //                   ),
-            //                 RaisedButton(
-            //                   onPressed: () {
-            //                     showBottomSheet();
-            //                   },
-            //                   child: Text('画像を変更'),
-            //                 ),
-            //               ]),
-            //         ));
-            //       } else {
-            //         print("image field snapshot has no data.");
-            //         return Container(
-            //             child: SingleChildScrollView(
-            //           child: Column(
-            //               mainAxisAlignment: MainAxisAlignment.center,
-            //               children: [
-            //                 // if (_oldFile != null)
-            //                 //   Container(
-            //                 //     height: 300,
-            //                 //     width: 300,
-            //                 //     child: Image.file(_oldFile),
-            //                 //   ),
-            //                 RaisedButton(
-            //                   onPressed: () {
-            //                     showBottomSheet();
-            //                   },
-            //                   child: Text('写真を選択'),
-            //                 ),
-            //               ]),
-            //         ));
-            //       }
-            //     }),
-            RaisedButton(
-              child: const Text('削除'),
-              onPressed: () {
-                setState(() {
-                  if (_todo.imageUrl.isNotEmpty) {
-                    debugPrint('deleting image to be here');
-                    // _todo.imageFile.deleteSync();
-                  }
-                  _todo.imageUrl = '';
-                });
-              },
-            ),
+            if (_tempUrl.isNotEmpty || _fileList[0].path != "")
+              RaisedButton(
+                child: const Text('削除'),
+                onPressed: () {
+                  setState(() {
+                    if (_fileList[0].path != "") {
+                      _fileList[0] = File("");
+                    }
+                    if (_todo.imageUrl.isNotEmpty) {
+                      _tempUrl = "";
+                    }
+                  });
+                },
+              ),
           ],
         ),
-        Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: _todo.imageUrl == '' ? Text('No image') : Container()
-            // : Image.file(
-            //     _todo.imageFile,
-            //     width: 240,
-            //   ),
-            ),
       ],
     );
   }
@@ -443,6 +447,16 @@ class _TodoEditFormState extends State<TodoEditForm> {
   List<DropdownMenuItem<int>> _generateDayDropdownMenu({DateTime dt}) {
     int days = daysInCurrentMonth(dt ?? DateTime.now());
     return _generateDropdownMenu(days, offset: 1);
+  }
+
+  Future<List<Map<String, String>>> _generateProjectDataSource() async {
+    List<Project> prjList = await RESTProjectRepository().retrieveProjects();
+    return prjList.map((e) {
+      return {
+        "display": e.name,
+        "value": e.id,
+      };
+    }).toList();
   }
 
   Future<int> showCupertinoBottomBar() {
@@ -489,31 +503,10 @@ class _TodoEditFormState extends State<TodoEditForm> {
     } else if (result == 1) {
       imageFile = await ImageUpload(ImageSource.gallery).getImageFromDevice();
     }
-    _fileList[0] = imageFile;
-    if (Image.file(_fileList[0]) != null) {
-      setState(() {
-        print("file set state");
-        _fileList[0] = imageFile;
-      });
-    }
+    setState(() {
+      _fileList[0] = imageFile;
+    });
   }
-
-  // Future<void> _getImage() async {
-  //   final picked = await _picker.getImage(
-  //     source: ImageSource.gallery,
-  //   );
-
-  //   if (picked != null) {
-  //     setState(() {
-  //       // _image = File(picked.path);
-  //       if (_todo.imageUrl.isNotEmpty) {
-  //         debugPrint('deleting image to be here');
-  //         // _todo.imageFile.deleteSync();
-  //       }
-  //       _todo.imageUrl = picked.path;
-  //     });
-  //   }
-  // }
 }
 
 class _FormLabelWidget extends StatelessWidget {
@@ -554,3 +547,136 @@ class _FormSeperatorWidget extends StatelessWidget {
     );
   }
 }
+
+// class TodoSearchWidget extends StatefulWidget {
+//   final Future<List<Todo>> todos;
+//   final int currentIndex;
+//   TodoSearchWidget({
+//     Key key,
+//     @required this.todos,
+//     @required this.currentIndex,
+//   })  : assert(todos != null),
+//         assert(currentIndex != null),
+//         super(key: key);
+
+//   State<TodoSearchWidget> createState() => _TodoSearchWidgetState();
+// }
+
+// class _TodoSearchWidgetState extends State<TodoSearchWidget> {
+//   final _formKey = GlobalKey<FormState>();
+//   final Future<List<User>> _users = RESTUserRepository().retrieveUsers();
+//   final Future<List<Project>> _prjs =
+//       RESTProjectRepository().retrieveProjects();
+//   List<String> _searchedUserIDs = [];
+//   List<String> _searchedProjectIDs = [];
+//   Future<List<Todo>> _todos;
+//   int _currentIndex;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _todos = widget.todos;
+//     _currentIndex = widget.currentIndex;
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//         padding: EdgeInsets.all(16),
+//         child: Column(
+//           children: [
+//             SizedBox(
+//               height: 50,
+//               child: RaisedButton(
+//                 color: Colors.blue,
+//                 textColor: Colors.white,
+//                 child: const Text("検索"),
+//                 onPressed: () {
+//                   if (_formKey.currentState.validate()) {
+//                     _formKey.currentState.save();
+//                     setState(() {
+//                       print(_todos);
+//                       _todos = RESTTodoRepository().retrieveTodos(
+//                           users: _searchedUserIDs,
+//                           prjs: _searchedProjectIDs,
+//                           done: _currentIndex == 0 ? false : true);
+//                       _searchedUserIDs = [];
+//                       _searchedProjectIDs = [];
+//                     });
+//                   }
+//                 },
+//               ),
+//             ),
+//             Form(
+//                 key: _formKey,
+//                 child: SizedBox(
+//                     height: 300,
+//                     child: Row(
+//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                       children: [
+//                         SizedBox(
+//                           width: 150,
+//                           child: FutureBuilder(
+//                               future: _users,
+//                               builder: (context, snapshot) {
+//                                 if (!snapshot.hasData) {
+//                                   return Container(
+//                                     child: Center(
+//                                       child: CircularProgressIndicator(),
+//                                     ),
+//                                   );
+//                                 }
+//                                 return ListView.builder(
+//                                   itemCount: snapshot.data.length,
+//                                   itemBuilder: (context, index) {
+//                                     final user = snapshot.data[index];
+//                                     return CheckboxListTileFormField(
+//                                       dense: true,
+//                                       title: Text("${user.name}"),
+//                                       initialValue: false,
+//                                       onSaved: (value) {
+//                                         if (value) {
+//                                           print("user checked field");
+//                                           _searchedUserIDs.add(user.id);
+//                                         }
+//                                       },
+//                                     );
+//                                   },
+//                                 );
+//                               }),
+//                         ),
+//                         SizedBox(
+//                             width: 200,
+//                             child: FutureBuilder(
+//                                 future: _prjs,
+//                                 builder: (context, snapshot) {
+//                                   if (!snapshot.hasData) {
+//                                     return Container(
+//                                       child: Center(
+//                                         child: CircularProgressIndicator(),
+//                                       ),
+//                                     );
+//                                   }
+//                                   return ListView.builder(
+//                                     itemCount: snapshot.data.length,
+//                                     itemBuilder: (context, index) {
+//                                       final prj = snapshot.data[index];
+//                                       return CheckboxListTileFormField(
+//                                         title: Text("${prj.name}"),
+//                                         dense: true,
+//                                         initialValue: false,
+//                                         onSaved: (value) {
+//                                           if (value) {
+//                                             _searchedProjectIDs.add(prj.id);
+//                                           }
+//                                         },
+//                                       );
+//                                     },
+//                                   );
+//                                 })),
+//                       ],
+//                     ))),
+//           ],
+//         ));
+//   }
+// }

@@ -1,9 +1,26 @@
 package models
 
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
 //Project is models for project
 type Project struct {
-	ID   int    `json:"id" gorm:"primary_key"`
-	Name string `json:"name"`
+	ID   uuid.UUID `json:"id" gorm:"primary_key"`
+	Name string    `json:"name"`
+}
+
+//BeforeCreate sets an id to projects before creation.
+func (prj *Project) BeforeCreate(tx *gorm.DB) (err error) {
+	prj.ID = uuid.New()
+	return nil
+}
+
+// Get todo by id.
+func (prj *Project) Get(id uuid.UUID) error {
+	res := db.First(prj, id)
+	return res.Error
 }
 
 // Create project with current values.

@@ -5,8 +5,11 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 	"todo_api/models"
+
+	"github.com/google/uuid"
 
 	"github.com/labstack/echo"
 	"gorm.io/gorm"
@@ -14,19 +17,40 @@ import (
 
 // GetTodos is a handler for `GET /api/todos`.
 func GetTodos(c echo.Context) error {
-	var todo models.Todo
-	todo.PersonID.UnmarshalText([]byte(c.Param("id")))
-	done := c.Param("done")
-
-	if done == "1" || done == "true" {
-		todo.Done = true
+	// var todo models.Todo
+	quids := c.Param("users")
+	qprjids := c.Param("projects")
+	qdone := c.Param("done")
+	uids := GetIDSlice(quids)
+	prjids := GetIDSlice(qprjids)
+	var done bool
+	if qdone == "1" || qdone == "true" {
+		done = true
+	} else {
+		done = false
 	}
-	todos, err := models.GetTodos(todo)
+	todos, err := models.GetTodos(uids, prjids, done)
 	if err != nil {
 		return internalServerError(err)
 	}
 
 	return c.JSON(http.StatusOK, todos)
+}
+
+//GetIDSlice returns slice of uuids for gettodos
+func GetIDSlice(s string) []uuid.UUID {
+	s = strings.Trim(s, "[")
+	s = strings.Trim(s, "]")
+	sSlice := strings.Split(s, ",")
+	var idSlice []uuid.UUID
+	for _, str := range sSlice {
+		u, err := uuid.Parse(str)
+		if err != nil {
+			break
+		}
+		idSlice = append(idSlice, u)
+	}
+	return idSlice
 }
 
 // GetTodo is a handler for `GET /api/todos/:id`.
@@ -54,6 +78,17 @@ func PostTodo(c echo.Context) error {
 	err := c.Bind(&todo)
 	if err != nil {
 		return err
+	}
+	if id := todo.ProjectID; id != uuid.Nil {
+		var prj models.Project
+		err := prj.Get(id)
+		if err == gorm.ErrRecordNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return internalServerError(err)
+		}
+		todo.Project = prj
 	}
 
 	err = todo.Create()
@@ -89,6 +124,16 @@ func SaveImage(c echo.Context) error {
 		return err
 	}
 	return c.String(http.StatusOK, file.Filename)
+}
+
+//DeleteImage is a handler for `DELETE /api/images/:filename`
+func DeleteImage(c echo.Context) error {
+	fileName := c.Param("filename")
+	err := os.Remove("images/" + fileName)
+	if err != nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+	return c.NoContent(http.StatusNoContent)
 }
 
 // PutTodo is a handler for `PUT /api/todos/:id`.

@@ -17,8 +17,8 @@ type Todo struct {
 	End      string    `json:"end"`
 	PersonID uuid.UUID `json:"person"`
 	// Person   User
-	ProjectID int     `json:"projectid"`
-	Project   Project `json:"project" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ProjectID uuid.UUID `json:"projectid"`
+	Project   Project   `json:"project" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // BeforeCreate make default `todo id`
@@ -50,9 +50,29 @@ func (todo *Todo) Delete() error {
 }
 
 // GetTodos returns todos filtered by given todo's values.
-func GetTodos(todo Todo) ([]Todo, error) {
+// func GetTodos(todo Todo) ([]Todo, error) {
+// 	var todos []Todo
+// 	todoList := db.Order("start").Debug().Where(map[string]interface{}{"person_id": todo.PersonID.String(), "done": todo.Done}).Find(&todos)
+// 	err := todoList.Error
+// 	return todos, err
+// }
+
+// GetTodos returns todos filtered by given todo's values.
+func GetTodos(uids []uuid.UUID, prjids []uuid.UUID, done bool) ([]Todo, error) {
 	var todos []Todo
-	todoList := db.Order("start").Debug().Where(map[string]interface{}{"person_id": todo.PersonID.String(), "done": todo.Done}).Find(&todos)
-	err := todoList.Error
+	var err error
+	if len(uids) == 0 && len(prjids) == 0 {
+		todoList := db.Order("start").Debug().Where("done = ?", done).Find(&todos)
+		err = todoList.Error
+	} else if len(uids) == 0 && len(prjids) != 0 {
+		todoList := db.Order("start").Debug().Where("project_id IN ?", prjids).Where("done = ?", done).Find(&todos)
+		err = todoList.Error
+	} else if len(uids) != 0 && len(prjids) == 0 {
+		todoList := db.Order("start").Debug().Where("person_id IN ?", uids).Where("done = ?", done).Find(&todos)
+		err = todoList.Error
+	} else {
+		todoList := db.Order("start").Debug().Where("person_id IN ?", uids).Where("project_id IN ?", prjids).Where("done = ?", done).Find(&todos)
+		err = todoList.Error
+	}
 	return todos, err
 }

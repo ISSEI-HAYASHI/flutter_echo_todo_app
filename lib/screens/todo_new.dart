@@ -57,6 +57,10 @@ class _TodoCreationScreenState extends State<TodoCreationScreen> {
       String imageurl = await ImageToAPI().upload(_fileList[0]);
       _todo.imageUrl = imageurl;
     }
+    // 追加
+    // 予定作成時は通知を鳴らさない設定で作成
+    _todo.notificationToggle = false;
+    // ここまで
     await RESTTodoRepository().createTodo(_todo);
     Navigator.pushNamedAndRemoveUntil(
       context,

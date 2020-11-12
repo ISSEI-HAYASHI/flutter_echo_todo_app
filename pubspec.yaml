@@ -38,6 +38,13 @@ dependencies:
   checkbox_formfield: ^0.1.0+3
   modal_bottom_sheet: ^0.2.2
 
+  #  追加
+  flutter_local_notifications: ^3.0.1+2
+  redux: ^4.0.0
+  redux_persist: ^0.8.3
+  rxdart: ^0.23.1
+  #  ここまで
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

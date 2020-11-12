@@ -12,7 +12,28 @@ import 'package:todo_app/screens/project_new.dart';
 
 import 'routes.dart';
 
-void main() {
+//追加
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:todo_app/notification/notificationHelper.dart';
+import 'package:todo_app/store/store.dart';
+import 'package:todo_app/store/appState.dart';
+import 'package:redux/redux.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+NotificationAppLaunchDetails notificationAppLaunchDetails;
+Store<AppState> store;
+//ここまで
+
+// asyncに変更
+void main() async{
+  // 追加
+  WidgetsFlutterBinding.ensureInitialized();
+  await initStore();
+  store = getStore();
+  notificationAppLaunchDetails = await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  await initNotifications(flutterLocalNotificationsPlugin);
+  // ここまで
   runApp(MyApp());
 }
 

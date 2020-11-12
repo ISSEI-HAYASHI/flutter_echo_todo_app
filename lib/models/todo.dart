@@ -10,6 +10,8 @@ class Todo {
   DateTime end;
   String personID;
   String projectID;
+  //  追加
+  bool notificationToggle;
 
   Todo({
     this.id,
@@ -21,6 +23,8 @@ class Todo {
     this.end,
     this.personID,
     this.projectID,
+    //  追加
+    this.notificationToggle
   });
 
   Todo.fromMap(Map<String, dynamic> map)
@@ -33,7 +37,9 @@ class Todo {
             start: DateTime.parse(map["start"]),
             end: DateTime.parse(map["end"]),
             personID: map["person"],
-            projectID: map["projectid"]);
+            projectID: map["projectid"],
+            // 追加
+            notificationToggle: map["notificationToggle"],);
 
   Map<String, dynamic> toMap() {
     return {
@@ -46,6 +52,8 @@ class Todo {
       "end": this.end.toIso8601String(),
       "person": this.personID,
       "projectid": this.projectID,
+      //  追加
+      "notificationToggle": this.notificationToggle,
     };
   }
 }

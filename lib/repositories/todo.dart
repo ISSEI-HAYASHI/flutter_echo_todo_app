@@ -44,6 +44,7 @@ class RESTTodoRepository implements TodoRepository {
 
   @override
   Future<void> createTodo(Todo todo) async {
+    print(todo.notificationToggle);
     todo.personID = kUserID;
     final response = await http.post(
       kTodoAPIUrl,

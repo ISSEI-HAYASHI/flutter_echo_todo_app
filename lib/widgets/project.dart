@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/models/project.dart';
+import 'package:todo_app/widgets/todo.dart' show FormLabelWidget;
 
 class ProjectEditForm extends StatefulWidget {
   final Project prj;
@@ -24,7 +25,7 @@ class _ProjectEditFormState extends State<ProjectEditForm> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const _FormLabelWidget('Name'),
+        const FormLabelWidget('Name'),
         Padding(
           padding: _formFieldPadding,
           child: TextFormField(
@@ -47,24 +48,24 @@ class _ProjectEditFormState extends State<ProjectEditForm> {
   }
 }
 
-class _FormLabelWidget extends StatelessWidget {
-  final String data;
+// class _FormLabelWidget extends StatelessWidget {
+//   final String data;
 
-  const _FormLabelWidget(this.data, {Key key})
-      : assert(data != null),
-        super(key: key);
+//   const _FormLabelWidget(this.data, {Key key})
+//       : assert(data != null),
+//         super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        data,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 30,
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Align(
+//       alignment: Alignment.centerLeft,
+//       child: Text(
+//         data,
+//         style: TextStyle(
+//           fontWeight: FontWeight.bold,
+//           fontSize: 30,
+//         ),
+//       ),
+//     );
+//   }
+// }

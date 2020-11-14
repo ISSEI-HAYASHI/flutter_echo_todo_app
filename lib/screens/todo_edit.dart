@@ -67,12 +67,12 @@ class _TodoEditScreenState extends State<TodoEditScreen> {
     print(_tempUrl);
     if (_fileList[0].path != "") {
       if (_todo.imageUrl.isNotEmpty) {
-        DeleteImage().delete(_todo.imageUrl);
+        RESTImageRepository().delete(_todo.imageUrl);
       }
-      _todo.imageUrl = await ImageToAPI().upload(_fileList[0]);
+      _todo.imageUrl = await RESTImageRepository().upload(_fileList[0]);
     } else {
       if (_todo.imageUrl.isNotEmpty && _tempUrl.isEmpty) {
-        DeleteImage().delete(_todo.imageUrl);
+        RESTImageRepository().delete(_todo.imageUrl);
         _todo.imageUrl = "";
       }
     }

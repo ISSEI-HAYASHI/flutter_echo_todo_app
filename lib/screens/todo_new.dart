@@ -54,7 +54,7 @@ class _TodoCreationScreenState extends State<TodoCreationScreen> {
 
   Future<void> _createTodoAndReturnToHome() async {
     if (_fileList[0].path != "") {
-      String imageurl = await ImageToAPI().upload(_fileList[0]);
+      String imageurl = await RESTImageRepository().upload(_fileList[0]);
       _todo.imageUrl = imageurl;
     }
     // 追加

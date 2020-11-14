@@ -12,7 +12,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:todo_app/repositories/image.dart';
+// import 'package:todo_app/repositories/image.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
 // import 'package:checkbox_formfield/checkbox_formfield.dart';
 
@@ -86,20 +86,24 @@ class TodoSummaryWidget extends StatelessWidget {
 
               // 追加
               // 通知の切り替えボタン追加
-              if(todo.notificationToggle == true)
+              if (todo.notificationToggle == true)
                 IconButton(
                   iconSize: 30,
-                  onPressed: (){toggleBtn(todo, context);},
+                  onPressed: () {
+                    toggleBtn(todo, context);
+                  },
                   icon: Icon(
                     Icons.add_alert,
                     color: Colors.blue,
                   ),
                 ),
-              if(todo.notificationToggle != true)
-              // else
+              if (todo.notificationToggle != true)
+                // else
                 IconButton(
                   iconSize: 30,
-                  onPressed: (){toggleBtn(todo, context);},
+                  onPressed: () {
+                    toggleBtn(todo, context);
+                  },
                   icon: Icon(
                     Icons.add_alert,
                     color: Colors.grey,
@@ -128,17 +132,17 @@ class TodoSummaryWidget extends StatelessWidget {
 
   // 追加
   // 通知のtoggleを変更して更新
-  Future<void> toggleBtn(Todo todo, BuildContext context) async{
+  Future<void> toggleBtn(Todo todo, BuildContext context) async {
     bool flag;
     print(todo.notificationToggle);
-    if(todo.notificationToggle == false){
+    if (todo.notificationToggle == false) {
       flag = true;
       // 通知を設定する関数へ渡す
       var notificationDatetime = todo.start;
       print(todo.start);
-      _configureCustomReminder(flag, todo.id, todo.title, todo.memo, notificationDatetime);
-    }
-    else{
+      _configureCustomReminder(
+          flag, todo.id, todo.title, todo.memo, notificationDatetime);
+    } else {
       flag = false;
     }
     final renewTodo = Todo(
@@ -157,18 +161,13 @@ class TodoSummaryWidget extends StatelessWidget {
     Navigator.pushNamedAndRemoveUntil(
       context,
       kTodoHomeRouteName,
-          (route) => false,
+      (route) => false,
     );
   }
 
   //  時間指定の通知を設定
-  void _configureCustomReminder(
-      bool value,
-      String id,
-      String notificationTitle,
-      String notificationName,
-      DateTime notificationDatetime
-      ) {
+  void _configureCustomReminder(bool value, String id, String notificationTitle,
+      String notificationName, DateTime notificationDatetime) {
     if (value == true) {
       var notificationTime = new DateTime(
         notificationDatetime.year,
@@ -188,12 +187,10 @@ class TodoSummaryWidget extends StatelessWidget {
       // );
 
       // appStateReducerへ
-      getStore().dispatch(
-          SetReminderAction(
-            time: notificationTime.toIso8601String(),
-            name: notificationTitle,
-          )
-      );
+      getStore().dispatch(SetReminderAction(
+        time: notificationTime.toIso8601String(),
+        name: notificationTitle,
+      ));
 
       // notificationHelperへ
       scheduleNotification(
@@ -267,7 +264,7 @@ class _TodoEditFormState extends State<TodoEditForm> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const _FormLabelWidget('Title'),
+        const FormLabelWidget('Title'),
         Padding(
           padding: _formFieldPadding,
           child: TextFormField(
@@ -285,7 +282,7 @@ class _TodoEditFormState extends State<TodoEditForm> {
             initialValue: _todo.title,
           ),
         ),
-        const _FormLabelWidget("Project"),
+        const FormLabelWidget("Project"),
         Padding(
             padding: _formFieldPadding,
             child: FutureBuilder<List<Map<String, String>>>(
@@ -316,7 +313,7 @@ class _TodoEditFormState extends State<TodoEditForm> {
                 }
               },
             )),
-        const _FormLabelWidget('Schedule'),
+        const FormLabelWidget('Schedule'),
         Padding(
           padding: _formFieldPadding,
           child: Column(
@@ -496,7 +493,7 @@ class _TodoEditFormState extends State<TodoEditForm> {
             ],
           ),
         ),
-        const _FormLabelWidget('Memo'),
+        const FormLabelWidget('Memo'),
         Padding(
           padding: _formFieldPadding,
           child: TextFormField(
@@ -512,7 +509,7 @@ class _TodoEditFormState extends State<TodoEditForm> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            const _FormLabelWidget('Image'),
+            const FormLabelWidget('Image'),
             Container(
                 child: SingleChildScrollView(
               child: Column(
@@ -594,7 +591,7 @@ class _TodoEditFormState extends State<TodoEditForm> {
         builder: (BuildContext context) {
           return CupertinoActionSheet(
             message: Text('写真をアップロードしますか？'),
-            actions: <Widget>[
+            actions: [
               CupertinoActionSheetAction(
                 child: Text(
                   'カメラで撮影',
@@ -637,10 +634,10 @@ class _TodoEditFormState extends State<TodoEditForm> {
   }
 }
 
-class _FormLabelWidget extends StatelessWidget {
+class FormLabelWidget extends StatelessWidget {
   final String data;
 
-  const _FormLabelWidget(this.data, {Key key})
+  const FormLabelWidget(this.data, {Key key})
       : assert(data != null),
         super(key: key);
 
@@ -676,135 +673,19 @@ class _FormSeperatorWidget extends StatelessWidget {
   }
 }
 
-// class TodoSearchWidget extends StatefulWidget {
-//   final Future<List<Todo>> todos;
-//   final int currentIndex;
-//   TodoSearchWidget({
-//     Key key,
-//     @required this.todos,
-//     @required this.currentIndex,
-//   })  : assert(todos != null),
-//         assert(currentIndex != null),
-//         super(key: key);
+class ImageUpload {
+  final ImageSource source;
+  final int quality;
 
-//   State<TodoSearchWidget> createState() => _TodoSearchWidgetState();
-// }
+  ImageUpload(this.source, {this.quality = 50});
 
-// class _TodoSearchWidgetState extends State<TodoSearchWidget> {
-//   final _formKey = GlobalKey<FormState>();
-//   final Future<List<User>> _users = RESTUserRepository().retrieveUsers();
-//   final Future<List<Project>> _prjs =
-//       RESTProjectRepository().retrieveProjects();
-//   List<String> _searchedUserIDs = [];
-//   List<String> _searchedProjectIDs = [];
-//   Future<List<Todo>> _todos;
-//   int _currentIndex;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _todos = widget.todos;
-//     _currentIndex = widget.currentIndex;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//         padding: EdgeInsets.all(16),
-//         child: Column(
-//           children: [
-//             SizedBox(
-//               height: 50,
-//               child: RaisedButton(
-//                 color: Colors.blue,
-//                 textColor: Colors.white,
-//                 child: const Text("検索"),
-//                 onPressed: () {
-//                   if (_formKey.currentState.validate()) {
-//                     _formKey.currentState.save();
-//                     setState(() {
-//                       print(_todos);
-//                       _todos = RESTTodoRepository().retrieveTodos(
-//                           users: _searchedUserIDs,
-//                           prjs: _searchedProjectIDs,
-//                           done: _currentIndex == 0 ? false : true);
-//                       _searchedUserIDs = [];
-//                       _searchedProjectIDs = [];
-//                     });
-//                   }
-//                 },
-//               ),
-//             ),
-//             Form(
-//                 key: _formKey,
-//                 child: SizedBox(
-//                     height: 300,
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         SizedBox(
-//                           width: 150,
-//                           child: FutureBuilder(
-//                               future: _users,
-//                               builder: (context, snapshot) {
-//                                 if (!snapshot.hasData) {
-//                                   return Container(
-//                                     child: Center(
-//                                       child: CircularProgressIndicator(),
-//                                     ),
-//                                   );
-//                                 }
-//                                 return ListView.builder(
-//                                   itemCount: snapshot.data.length,
-//                                   itemBuilder: (context, index) {
-//                                     final user = snapshot.data[index];
-//                                     return CheckboxListTileFormField(
-//                                       dense: true,
-//                                       title: Text("${user.name}"),
-//                                       initialValue: false,
-//                                       onSaved: (value) {
-//                                         if (value) {
-//                                           print("user checked field");
-//                                           _searchedUserIDs.add(user.id);
-//                                         }
-//                                       },
-//                                     );
-//                                   },
-//                                 );
-//                               }),
-//                         ),
-//                         SizedBox(
-//                             width: 200,
-//                             child: FutureBuilder(
-//                                 future: _prjs,
-//                                 builder: (context, snapshot) {
-//                                   if (!snapshot.hasData) {
-//                                     return Container(
-//                                       child: Center(
-//                                         child: CircularProgressIndicator(),
-//                                       ),
-//                                     );
-//                                   }
-//                                   return ListView.builder(
-//                                     itemCount: snapshot.data.length,
-//                                     itemBuilder: (context, index) {
-//                                       final prj = snapshot.data[index];
-//                                       return CheckboxListTileFormField(
-//                                         title: Text("${prj.name}"),
-//                                         dense: true,
-//                                         initialValue: false,
-//                                         onSaved: (value) {
-//                                           if (value) {
-//                                             _searchedProjectIDs.add(prj.id);
-//                                           }
-//                                         },
-//                                       );
-//                                     },
-//                                   );
-//                                 })),
-//                       ],
-//                     ))),
-//           ],
-//         ));
-//   }
-// }
+  Future<File> getImageFromDevice() async {
+    final imageFile = await ImagePicker().getImage(source: source);
+    if (imageFile == null) {
+      return null;
+    }
+    // 画像を圧縮
+    final File compressedFile = File(imageFile.path);
+    return compressedFile;
+  }
+}

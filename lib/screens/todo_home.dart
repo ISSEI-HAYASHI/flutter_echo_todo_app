@@ -23,7 +23,7 @@ class TodoHomeScreen extends StatefulWidget {
 
 class _TodoHomeScreenState extends State<TodoHomeScreen> {
   final _key = GlobalKey<ScaffoldState>();
-  static final _widgetOptions = <Widget>[
+  static final _widgetOptions = [
     TodoList(),
     TodoDoneList(),
     SettingOptions(),
@@ -360,7 +360,7 @@ class TodoListState extends TodoListStateBase {
             if (value != SnackBarClosedReason.action &&
                 message == 'deleted' &&
                 todo.imageUrl.isNotEmpty) {
-              DeleteImage().delete(todo.imageUrl);
+              RESTImageRepository().delete(todo.imageUrl);
             }
           });
       });
@@ -430,7 +430,7 @@ class TodoDoneListState extends TodoListStateBase {
             if (value != SnackBarClosedReason.action &&
                 message == 'deleted' &&
                 todo.imageUrl.isNotEmpty) {
-              DeleteImage().delete(todo.imageUrl);
+              RESTImageRepository().delete(todo.imageUrl);
             }
           });
       });

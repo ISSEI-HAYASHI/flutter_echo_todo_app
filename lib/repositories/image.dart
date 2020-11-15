@@ -12,9 +12,10 @@ abstract class ImageRepository {
 class RESTImageRepository implements ImageRepository {
   @override
   Future<String> upload(File imageFile) async {
-    var dio = Dio();
-    FormData formData = FormData.fromMap(
-        {"file": await MultipartFile.fromFile(imageFile.path)});
+    final dio = Dio();
+    FormData formData = FormData.fromMap({
+      "file": await MultipartFile.fromFile(imageFile.path),
+    });
     Response<dynamic> response = await dio.post("$kImageUrl", data: formData);
     final String imgurl = response.data;
     return imgurl;

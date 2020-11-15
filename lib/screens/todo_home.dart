@@ -1,5 +1,6 @@
 import 'dart:async';
 
+
 import 'package:flutter/material.dart';
 // import 'package:flutter/semantics.dart';
 import 'package:todo_app/models/todo.dart';
@@ -195,42 +196,42 @@ abstract class TodoListStateBase extends State<TodoListBase> {
                                                   }),
                                             ),
                                             SizedBox(
-                                                width: 200,
-                                                child: FutureBuilder(
-                                                    future: _prjs,
-                                                    builder:
-                                                        (context, snapshot) {
-                                                      if (!snapshot.hasData) {
-                                                        return Container(
-                                                          child: Center(
-                                                            child:
-                                                                CircularProgressIndicator(),
-                                                          ),
-                                                        );
-                                                      }
-                                                      return ListView.builder(
-                                                        itemCount: snapshot
-                                                            .data.length,
-                                                        itemBuilder:
-                                                            (context, index) {
-                                                          final prj = snapshot
-                                                              .data[index];
-                                                          return CheckboxListTileFormField(
-                                                            title: Text(
-                                                                "${prj.name}"),
-                                                            dense: true,
-                                                            initialValue: false,
-                                                            onSaved: (value) {
-                                                              if (value) {
-                                                                _searchedProjectIDs
-                                                                    .add(
-                                                                        prj.id);
-                                                              }
-                                                            },
-                                                          );
+                                              width: 200,
+                                              child: FutureBuilder(
+                                                future: _prjs,
+                                                builder: (context, snapshot) {
+                                                  if (!snapshot.hasData) {
+                                                    return Container(
+                                                      child: Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      ),
+                                                    );
+                                                  }
+                                                  return ListView.builder(
+                                                    itemCount:
+                                                        snapshot.data.length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      final prj =
+                                                          snapshot.data[index];
+                                                      return CheckboxListTileFormField(
+                                                        title:
+                                                            Text("${prj.name}"),
+                                                        dense: true,
+                                                        initialValue: false,
+                                                        onSaved: (value) {
+                                                          if (value) {
+                                                            _searchedProjectIDs
+                                                                .add(prj.id);
+                                                          }
                                                         },
                                                       );
-                                                    })),
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                            ),
                                           ],
                                         ))),
                               ],

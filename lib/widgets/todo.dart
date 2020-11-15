@@ -57,7 +57,7 @@ class TodoSummaryWidget extends StatelessWidget {
                             RESTUserRepository().retrieveUser(todo.personID),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
-                            return Text("ユーザを取得中");
+                            return Text("");
                           }
                           return Text("${snapshot.data.name}");
                         },

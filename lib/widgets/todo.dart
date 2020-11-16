@@ -4,7 +4,7 @@ import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/models/user.dart';
 import 'package:todo_app/repositories/constants.dart';
 import 'package:todo_app/repositories/project.dart';
-// import 'package:todo_app/repositories/todo.dart';
+
 import 'package:todo_app/repositories/user.dart';
 import 'package:todo_app/routes.dart';
 import 'package:todo_app/utils/datetime.dart';
@@ -12,9 +12,9 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:todo_app/repositories/image.dart';
+
 import 'package:dropdown_formfield/dropdown_formfield.dart';
-// import 'package:checkbox_formfield/checkbox_formfield.dart';
+import 'package:todo_app/widgets/form_label.dart';
 
 //追加
 import 'package:todo_app/repositories/todo.dart';
@@ -631,28 +631,6 @@ class _TodoEditFormState extends State<TodoEditForm> {
     setState(() {
       _fileList[0] = imageFile;
     });
-  }
-}
-
-class FormLabelWidget extends StatelessWidget {
-  final String data;
-
-  const FormLabelWidget(this.data, {Key key})
-      : assert(data != null),
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        data,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 30,
-        ),
-      ),
-    );
   }
 }
 

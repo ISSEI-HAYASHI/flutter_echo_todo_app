@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/models/project.dart';
-import 'package:todo_app/widgets/todo.dart' show FormLabelWidget;
+import 'package:todo_app/widgets/form_label.dart';
 
 class ProjectEditForm extends StatefulWidget {
   final Project prj;

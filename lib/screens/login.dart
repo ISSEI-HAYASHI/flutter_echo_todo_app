@@ -127,29 +127,6 @@ class _LoginFormState extends State<LoginForm> {
       kAuthorizationToken = 'Bearer ' + token;
       kUserName = userNmae;
       kUserID = userID;
-      // for (int i = 1; i <= 3; i++) {
-      //   print(i);
-      //   Project prj = Project(name: "プロジェクト$i");
-      //   await RESTProjectRepository().createProject(prj);
-      // }
-      // List<Project> prlList = await RESTProjectRepository().retrieveProjects();
-      // Project prj = prlList[0];
-      // for (int i = 1; i <= 4; i++) {
-      //   print(i);
-      //   Todo testTodo;
-      //   testTodo = Todo(
-      //     //id: '$i$i$i$i',
-      //     title: 'title$i',
-      //     memo: 'memo$i',
-      //     // imageUrl: 'imageUrl$i',
-      //     done: false,
-      //     start: DateTime.now(),
-      //     end: DateTime.now().add(new Duration(days: 5)),
-      //     personID: userID,
-      //     projectID: prj.id,
-      //   );
-      //   await RESTTodoRepository().createTodo(testTodo);
-      // }
       Navigator.pushNamedAndRemoveUntil(
           context, kTodoHomeRouteName, (route) => false);
     } else {

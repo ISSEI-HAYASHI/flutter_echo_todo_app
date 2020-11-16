@@ -44,6 +44,7 @@ func GetUser(c echo.Context) error {
 
 // PostUser is a handler for `POST /api/users`.
 func PostUser(c echo.Context) error {
+	println("post user")
 	var user models.User
 	err := c.Bind(&user)
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"log"
 
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -13,13 +13,16 @@ var db *gorm.DB
 
 func init() {
 	var err error
-	db, err = gorm.Open(sqlite.Open("db.sqlite3"), &gorm.Config{
+	db, err = gorm.Open(postgres.New(postgres.Config{
+		DSN:                  "user=gorm password=gorm dbname=gorm port=5432 sslmode=disable TimeZone=Asia/Tokyo",
+		PreferSimpleProtocol: true,
+	}), &gorm.Config{
 		PrepareStmt: true,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	db.AutoMigrate(&User{}, &Todo{})
+	db.AutoMigrate(&User{}, &Todo{}, &Project{})
 }
 
 // NullTime is wrapper for sql.NullTime to implement `MarshalJSON` and `UnmarshalJSON`.

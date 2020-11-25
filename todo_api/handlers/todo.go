@@ -44,6 +44,7 @@ func GetIDSlice(s string) []uuid.UUID {
 	sSlice := strings.Split(s, ",")
 	var idSlice []uuid.UUID
 	for _, str := range sSlice {
+		str = strings.TrimSpace(str)
 		u, err := uuid.Parse(str)
 		if err != nil {
 			break
